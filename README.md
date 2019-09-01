@@ -4,6 +4,21 @@ A Clojure library designed to work with user specified
 preferences/configs, that tend to honor $XDG_CONFIG_HOME but will also
 work with the more traditional GNU/Linux ~/.foorc convention.
 
+# Installation
+
+Just add into your project.clj or deps:
+
+```
+[ahungry/xdg-rc "0.0.2"]
+```
+
+Then when you want to use it, import it as:
+
+```clojure
+(ns your-package
+  (:require [xdg-rc.core :as xdg-rc]))
+```
+
 # Usage
 
 ## Getting the proper config directory
