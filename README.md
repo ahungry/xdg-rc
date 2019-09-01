@@ -6,6 +6,36 @@ work with the more traditional GNU/Linux ~/.foorc convention.
 
 # Usage
 
+## Getting the proper config directory
+
+You can get the Freedesktop.org
+(https://specifications.freedesktop.org/basedir-spec/latest/ar01s03.html)
+compatible XDG_CONFIG_HOME as such:
+
+```clojure
+(get-xdg-config-home)
+```
+
+which will return a string result of the user's XDG_CONFIG_HOME,
+defaulting to ~/.config if ont defined.
+
+For a user convenience, you can get the proper home directory for your
+system, as such:
+
+```clojure
+(with-xdg "your-system-name")
+```
+
+which will tend to evaluate to: ~/.config/your-system-name
+
+You can also use this per-file as follows:
+
+```clojure
+(with-xdg "your-system-name" "some-file")
+```
+
+and receive: ~/.config/your-system-name/some-file
+
 ## Simple RC file usage
 
 You can have your Clojure system create/define user configs similar to
