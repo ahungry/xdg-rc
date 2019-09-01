@@ -17,7 +17,7 @@ compatible XDG_CONFIG_HOME as such:
 ```
 
 which will return a string result of the user's XDG_CONFIG_HOME,
-defaulting to ~/.config if ont defined.
+defaulting to ~/.config if not defined.
 
 For a user convenience, you can get the proper home directory for your
 system, as such:
