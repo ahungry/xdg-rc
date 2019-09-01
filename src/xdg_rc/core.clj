@@ -88,7 +88,8 @@
        (filter -exists)))
 
 (defn get-rc-file
-  "Load the user RC file, with preference to XDG by default."
+  "Load the user RC file for SYSTEM, with preference to XDG by default.
+  Pass in the optional second argument :classic to flip priority."
   ([system] (get-rc-file system :xdg))
   ([system preference]
    (let [classic-rc (get-classic-rc-file system)

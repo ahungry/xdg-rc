@@ -4,7 +4,9 @@ A Clojure library designed to work with user specified
 preferences/configs, that tend to honor $XDG_CONFIG_HOME but will also
 work with the more traditional GNU/Linux ~/.foorc convention.
 
-## Usage
+# Usage
+
+## Simple RC file usage
 
 You can have your Clojure system create/define user configs similar to
 the following:
@@ -23,8 +25,40 @@ the following:
 ;; Will evaluate to "Hello from classic"
 ```
 
+The get-rc-file command will try to load from both locations, with
+precedence given to XDG by default, unless the :classic keyword is
+given as the second argument (in which case it flips the precedence).
 
-## License
+## Generating a config structure/tree
+
+You can also generate many config files for your project, as follows:
+
+```clojure
+(make-configs! "your-system-name"
+  [{:filename "first-file" :content "Some content"}
+   {:filename "second-file" :content "your other content"}
+   {:filename "third-file" :content "your last content"}])
+```
+
+This will create (honoring XDG_CONFIG_HOME) a structure similar to
+this:
+
+```sh
+your-system-name
+├── first-file
+├── second-file
+└── third-file
+```
+
+You can then view what files are present in the future, with:
+
+```clojure
+(ls "your-system-name")
+```
+
+which will return a seq of the filenames that exist.
+
+# License
 
 Copyright © 2019 Matthew Carter <m@ahungry.com>
 
