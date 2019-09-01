@@ -1,4 +1,9 @@
-(ns xdg-rc.core)
+(ns xdg-rc.core
+  (:require
+   [clojure.spec.alpha :as s]
+   [clojure.spec.gen.alpha :as gen]
+   [clojure.spec.test.alpha :as stest]
+   ))
 
 ;; https://specifications.freedesktop.org/basedir-spec/latest/ar01s03.html
 
@@ -22,6 +27,22 @@
        (read-string (slurp home-rc)))
      (if (.exists (clojure.java.io/file xdg-rc))
        (read-string (slurp xdg-rc))))))
+
+(defn with-xdg [s]
+  (str (get-xdg-config-home) "/" s))
+
+(defn -exists [x]
+  (.exists (clojure.java.io/file x)))
+
+(defn exists [s]
+  (-exists (with-xdg s)))
+
+(defn ls
+  "List the files for SYSTEM that exist."
+  [system]
+  (->> (clojure.java.io/file (with-xdg system))
+       file-seq
+       (filter -exists)))
 
 (defn foo
   "I don't do a whole lot."
