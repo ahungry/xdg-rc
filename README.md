@@ -1,5 +1,8 @@
 # xdg-rc
 
+[![Clojars Project](https://img.shields.io/clojars/v/ahungry/xdg-rc.svg)](https://clojars.org/ahungry/xdg-rc)
+[![cljdoc badge](https://cljdoc.org/badge/ahungry/xdg-rc)](https://cljdoc.org/d/ahungry/xdg-rc)
+
 A Clojure library designed to work with user specified
 preferences/configs, that tend to honor $XDG_CONFIG_HOME but will also
 work with the more traditional GNU/Linux ~/.foorc convention.
