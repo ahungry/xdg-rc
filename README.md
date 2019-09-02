@@ -119,6 +119,15 @@ Execution error (FileNotFoundException) at java.io.FileInputStream/open0 (FileIn
 over-here (No such file or directory)
 ```
 
+This is very usable with the following XDG based calls:
+
+```clojure
+(with-directory (xdg-cache-dir "some-system") (ls "."))
+(with-directory (xdg-config-dir "some-system") (ls "."))
+(with-directory (xdg-data-dir "some-system") (ls "."))
+(with-directory (xdg-bin-dir "some-system") (ls "."))
+```
+
 # License
 
 Copyright © 2019 Matthew Carter <m@ahungry.com>

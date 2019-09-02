@@ -84,9 +84,9 @@
     (slurp-if-exists filename)))
 
 (defn ls
-  "List the files for SYSTEM that exist."
-  [system]
-  (->> (clojure.java.io/file (with-xdg system))
+  "List the files for the DIR that exist."
+  [dir]
+  (->> (clojure.java.io/file dir)
        file-seq
        (filter -exists)))
 
@@ -101,13 +101,85 @@
        (or classic-rc xdg-rc)
        (or xdg-rc classic-rc)))))
 
+;; Some functions that work off File are fine with just modifying user.dir
+;; Others that work off of the FileStream items need the POSIX call.
+;; Some odd thing happens though - if we change back to the original dir
+;; too quickly, the call acts as if it never happened (the chdir)
 (defmacro with-directory
-  "Run a command with directory DIR changed during form evaluation."
+  "Run a command with directory DIR changed during form evaluation.
+  While some calls in Clojure/Java work off of the `user.dir' property,
+  others require changing the active directory with the POSIX interface chdir.
+
+  POTENTIAL UNSAFE TIMING ISSUE: Evaluation of a form that relies on chdir will not
+  work properly if the chdir of POSIX is reset too quickly.  Therefore this thread
+  will only reset the original chdir POSIX call 1 second after evaluation of the form.
+
+  For a more granular control, use the explicit function based variant `change-directory'
+  and `restore-directory'."
   [dir & r]
   `(let [current-directory# (System/getProperty "user.dir")]
-     (System/setProperty "user.dir" ~dir)
-     (doto (POSIXFactory/getPOSIX) (.chdir ~dir))
-     (let [result# ~@r]
-       (System/setProperty "user.dir" current-directory#)
-       (doto (POSIXFactory/getPOSIX) (.chdir current-directory#))
-       result#)))
+     (try
+       (System/setProperty "user.dir" ~dir)
+       (doto (POSIXFactory/getPOSIX) (.chdir ~dir))
+       (let [result# ~@r]
+         (System/setProperty "user.dir" current-directory#)
+         (future
+           (Thread/sleep 1e3)
+           (doto (POSIXFactory/getPOSIX) (.chdir current-directory#)))
+         result#)
+       (catch Exception e#
+         (System/setProperty "user.dir" current-directory#)
+         (doto (POSIXFactory/getPOSIX) (.chdir current-directory#))
+         (throw e#)
+         ))))
+
+(def original-user-dir (atom (System/getProperty "user.dir")))
+
+(defn restore-directory
+  "To be used after `change-directory' to restore the last directory."
+  []
+  (doto (POSIXFactory/getPOSIX) (.chdir @original-user-dir))
+  (System/setProperty "user.dir" @original-user-dir))
+
+(defn change-directory
+  "Change the active directory.  Use `restore-directory' to go back to the prior defaults."
+  [dir]
+  (reset! original-user-dir (System/getProperty "user.dir"))
+  (doto (POSIXFactory/getPOSIX) (.chdir dir))
+  (System/setProperty "user.dir" dir))
+
+(defn get-xdg-dir
+  "Get the XDG_CONFIG_HOME or HOME/.config if its not defined."
+  [env alt]
+  (or (System/getenv env)
+      (str (get-home) alt)))
+
+(defn get-xdg-cache-dir [] (get-xdg-dir "XDG_CACHE_HOME" "/.cache"))
+(defn get-xdg-config-dir [] (get-xdg-dir "XDG_CONFIG_HOME" "/.config"))
+(defn get-xdg-data-dir [] (get-xdg-dir "XDG_DATA_HOME" "/.local/share"))
+(defn get-xdg-bin-dir [] (get-xdg-dir "XDG_BIN_HOME" "/.local/bin"))
+
+(defn with-dir [f]
+  (fn
+    ([s] (str (f) "/" s))
+    ([s s2] (str (f) "/" s "/" s2))))
+
+(defn xdg-cache-dir
+  "Returns the proper XDG_CACHE_HOME for SYSTEM."
+  [system]
+  ((with-dir get-xdg-cache-dir) system))
+
+(defn xdg-config-dir
+  "Returns the proper XDG_CONFIG_HOME for SYSTEM."
+  [system]
+  ((with-dir get-xdg-config-dir) system))
+
+(defn xdg-data-dir
+  "Returns the proper XDG_DATA_HOME for SYSTEM."
+  [system]
+  ((with-dir get-xdg-data-dir) system))
+
+(defn xdg-bin-dir
+  "Returns the proper XDG_BIN_HOME for SYSTEM."
+  [system]
+  ((with-dir get-xdg-bin-dir) system))
