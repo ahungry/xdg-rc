@@ -3,7 +3,10 @@
    [clojure.spec.alpha :as s]
    [clojure.spec.gen.alpha :as gen]
    [clojure.spec.test.alpha :as stest]
-   ))
+   )
+  (:import [jnr.posix LazyPOSIX POSIXHandler POSIXFactory])
+  (:gen-class)
+  )
 
 ;; https://specifications.freedesktop.org/basedir-spec/latest/ar01s03.html
 
@@ -97,3 +100,14 @@
      (if (= preference :classic)
        (or classic-rc xdg-rc)
        (or xdg-rc classic-rc)))))
+
+(defmacro with-directory
+  "Run a command with directory DIR changed during form evaluation."
+  [dir & r]
+  `(let [current-directory# (System/getProperty "user.dir")]
+     (System/setProperty "user.dir" ~dir)
+     (doto (POSIXFactory/getPOSIX) (.chdir ~dir))
+     (let [result# ~@r]
+       (System/setProperty "user.dir" current-directory#)
+       (doto (POSIXFactory/getPOSIX) (.chdir current-directory#))
+       result#)))

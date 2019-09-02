@@ -103,6 +103,22 @@ You can then view what files are present in the future, with:
 
 which will return a seq of the filenames that exist.
 
+## Useful macros for general extensability
+
+This package also provides a macro, with-directory, which will allow
+evaluation of a form with the current user.dir changed to the
+directory specified by DIR.
+
+```clojure
+xdg-rc.core> (with-directory "/tmp" (spit "over-here" "found me"))
+nil
+xdg-rc.core> (slurp "/tmp/over-here")
+"found me"
+xdg-rc.core> (slurp "over-here")
+Execution error (FileNotFoundException) at java.io.FileInputStream/open0 (FileInputStream.java:-2).
+over-here (No such file or directory)
+```
+
 # License
 
 Copyright © 2019 Matthew Carter <m@ahungry.com>
