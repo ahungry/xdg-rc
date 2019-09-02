@@ -28,13 +28,13 @@
   ([s] (str (get-xdg-config-home) "/" s))
   ([s s2] (str (with-xdg s) "/" s2)))
 
-(defn -exists [x]
+(defn- -exists [x]
   (.exists (clojure.java.io/file x)))
 
-(defn exists [s]
+(defn- exists [s]
   (-exists (with-xdg s)))
 
-(defn make-file-if-not-exists!
+(defn- make-file-if-not-exists!
   "Create a file unless it already exists."
   ([filename] (make-file-if-not-exists! filename ""))
   ([filename content]
@@ -51,7 +51,7 @@
   (clojure.java.io/make-parents (with-xdg system ".gitkeep"))
   (map (partial make-config! system) ms))
 
-(defn slurp-if-exists [filename]
+(defn- slurp-if-exists [filename]
   (when (-exists filename)
     (slurp filename)))
 
@@ -114,8 +114,8 @@
   work properly if the chdir of POSIX is reset too quickly.  Therefore this thread
   will only reset the original chdir POSIX call 1 second after evaluation of the form.
 
-  For a more granular control, use the explicit function based variant `change-directory'
-  and `restore-directory'."
+  For a more granular control, use the explicit function based variant `change-directory`
+  and `restore-directory`."
   [dir & r]
   `(let [current-directory# (System/getProperty "user.dir")]
      (try
