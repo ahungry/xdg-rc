@@ -9,7 +9,7 @@ work with the more traditional GNU/Linux ~/.foorc convention.
 Just add into your project.clj or deps:
 
 ```
-[ahungry/xdg-rc "0.0.2"]
+[ahungry/xdg-rc "0.0.4"]
 ```
 
 Then when you want to use it, import it as:
